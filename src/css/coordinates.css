@@ -1,0 +1,53 @@
+.map-pre {
+  border-color: black !important;
+}
+
+.lntlat-co {
+  border-left-width: 0px !important;
+  border-right-width: 0px !important;
+  margin-left: 50px !important;
+  margin-right: 50px !important;
+  border-color: black !important;
+  text-transform: uppercase;
+}
+
+.place-co {
+  border-left-width: 0px !important;
+  border-right-width: 0px !important;
+  margin-left: 50px !important;
+  margin-right: 50px !important;
+  padding-top: 0px;
+  /* padding-bottom: 4px; */
+  text-transform: uppercase;
+  border-color: black !important;
+}
+
+.hr-co {
+  width: 73%;
+  margin: auto;
+  color: black;
+  opacity: 1;
+}
+
+.outer-map {
+  display: table;
+  height: 400px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.map-container-co {
+  display: table-cell;
+  vertical-align: middle;
+  font-size: 260px;
+  font-weight: 100;
+  text-transform: uppercase;
+  height: 410px;
+}
+
+.button-co {
+  border-radius: 20px;
+  line-height: 1px;
+  height: 35px;
+  width: 35px;
+}

@@ -1,0 +1,33 @@
+.map {
+  width: 30%;
+  text-align: end;
+}
+
+body {
+  background-color: #f2f2ef;
+}
+
+.main-inner {
+  padding: 60px;
+  display: flex;
+}
+
+.search-box {
+  width: 42%;
+  padding: 0px 59px;
+}
+
+.lntlat {
+  font-size: x-small;
+}
+
+.price-info {
+  width: 34%;
+  padding-left: 150px;
+  padding-right: 50px;
+}
+
+.map-inner {
+  padding: 10px;
+  background-color: white;
+}
