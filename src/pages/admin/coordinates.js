@@ -196,6 +196,7 @@ const CoordinatesAdmin = () => {
           <div className="form-floating mt-3">
             <input
               type="number"
+              min="0"
               name="price"
               className="form-control"
               id="floatingPassword"
@@ -262,6 +263,7 @@ const CoordinatesAdmin = () => {
                     </label>
                     <input
                       type="number"
+                      min="0"
                       onChange={(event) => handleChange(event, index)}
                       className="form-control"
                       name="price"
@@ -353,6 +355,7 @@ const CoordinatesAdmin = () => {
                   <div className="col-2">
                     <input
                       type="number"
+                      min="0"
                       className="form-control"
                       placeholder="$"
                       value={value.price}

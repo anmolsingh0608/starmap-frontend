@@ -7,6 +7,7 @@ import "../css/citymap.css";
 import Cartpop from "../component/cartpop.js";
 import Loading from "react-fullscreen-loading";
 import html2canvas from "html2canvas";
+import axiosUrl from "../component/axiosUrl";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoibHdlbDciLCJhIjoiY2tsaHlmOWd0MXBhczJ2bjE2YXB6MjJpdyJ9.Qq7c9tVw3VydDUJhr-0YKg";
@@ -23,6 +24,19 @@ const CityMap = () => {
   const [tag, setTag] = useState(lng + "/" + lat);
   const [size, setSize] = useState("12 X 18 inches");
   const [loading, setLoading] = useState(true);
+  const [styleFields, setStyleFields] = useState([]);
+  const [sizeFields, setSizeFields] = useState([]);
+  const [price, setPrice] = useState(55);
+  const [total, setTotal] = useState();
+  const [selectedStyle, setSelectedStyle] = useState({
+    style: "mapbox://styles/mapbox/streets-v8",
+    price: "",
+  });
+  const [selectedSize, setSelectedSize] = useState({
+    size: "",
+    price: "",
+  });
+
   let rows = "";
   const accessToken =
     "pk.eyJ1IjoibHdlbDciLCJhIjoiY2tsaHlmOWd0MXBhczJ2bjE2YXB6MjJpdyJ9.Qq7c9tVw3VydDUJhr-0YKg";
@@ -34,17 +48,66 @@ const CityMap = () => {
   });
 
   useEffect(() => {
+    const fetch = async () => {
+      let response = await axiosUrl.get("/api/map?q=citymap");
+      if (response.data !== null) {
+        if (response.data.price) {
+          setPrice(response.data.price);
+          setTotal(response.data.price);
+        }
+
+        if (response.data.config) {
+          const { sizes, styles } = response.data.config;
+          setSelectedStyle({
+            style: styles[0].style,
+            price: styles[0].price,
+          });
+          let ttl = 0;
+          if (styles[0].price) {
+            ttl = response.data.price + +styles[0].price;
+            setTotal(ttl);
+          }
+          if (Object.keys(sizes).length > 0) {
+            const meas =
+              sizes[0].height + " X " + sizes[0].width + " " + sizes[0].meas;
+            setSelectedSize({
+              size: meas,
+              price: sizes[0].price,
+            });
+            if (sizes[0].price) {
+              ttl = ttl + +sizes[0].price;
+              setTotal(ttl);
+            }
+          }
+          setStyleFields(styles);
+          setSizeFields(sizes);
+        }
+      }
+    };
+    fetch();
     setLoading(false);
   }, []);
 
-  const showMap = (style = "mapbox://styles/mapbox/streets-v8") => {
+  const showMap = (
+    style = "mapbox://styles/mapbox/streets-v8",
+    event = null
+  ) => {
     setStl(style);
+
+    if (event) {
+      let container = event.target.closest(".styles");
+      let child = container.querySelector(".active");
+      if (child) {
+        child.classList.remove("active");
+      }
+      event.target.classList.add("active");
+    }
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: style,
       center: [lng, lat],
       zoom: zoom,
-      preserveDrawingBuffer: true
+      preserveDrawingBuffer: true,
     });
   };
 
@@ -62,14 +125,13 @@ const CityMap = () => {
     const lng = event.target.attributes.lng.value;
     const lat = event.target.attributes.lat.value;
     const region = event.target.attributes.place.value;
-    console.log(region);
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: "mapbox://styles/mapbox/streets-v8",
       center: [lng, lat],
       zoom: zoom,
-      preserveDrawingBuffer: true
+      preserveDrawingBuffer: true,
     });
 
     setTag(lng + "/" + lat);
@@ -103,7 +165,11 @@ const CityMap = () => {
     setSize(sze);
     const width = event.target.attributes.width.value;
     const zoom = event.target.attributes.zoom.value;
-    document.getElementsByClassName("active")[0].classList.remove("active");
+    let container = event.target.closest(".sizes");
+    let child = container.querySelector(".active");
+    if (child) {
+      child.classList.remove("active");
+    }
     event.target.classList.add("active");
     document.getElementsByClassName("mapboxgl-map")[0].style.height = width;
     map.current = new mapboxgl.Map({
@@ -111,7 +177,7 @@ const CityMap = () => {
       style: stl,
       center: [lng, lat],
       zoom: zoom,
-      preserveDrawingBuffer: true
+      preserveDrawingBuffer: true,
     });
   };
 
@@ -132,10 +198,9 @@ const CityMap = () => {
     await html2canvas(document.getElementsByClassName("map-inner")[0]).then(
       function (canvas) {
         img = canvas.toDataURL("image/jpeg");
-        console.log(img);
       }
     );
-    
+
     let cart = [];
     const existingCart = JSON.parse(localStorage.getItem("cart"));
     if (existingCart !== null) {
@@ -147,7 +212,7 @@ const CityMap = () => {
       tag: tag,
       lat: lat,
       lng: lng,
-      price: "55",
+      price: total,
       size: size,
       style: stl,
       img: img,
@@ -160,6 +225,39 @@ const CityMap = () => {
     document.getElementsByClassName("cart-pop")[0].style.display = "block";
     setLoading(false);
     // }, 1000);
+  };
+
+  const updatePrice = (style, prc, type) => {
+    let ttl = total;
+    if (type === "style") {
+      ttl = ttl - Number(selectedStyle.price);
+      if (prc) {
+        const addOn = ttl + +prc;
+        setTotal(addOn);
+      } else {
+        const add = 0;
+        const addOn = ttl + add;
+        setTotal(addOn);
+      }
+      setSelectedStyle({
+        style: style,
+        price: prc,
+      });
+    } else {
+      ttl = ttl - Number(selectedSize.price);
+      if (prc) {
+        const addOn = ttl + +prc;
+        setTotal(addOn);
+      } else {
+        const add = 0;
+        const addOn = ttl + add;
+        setTotal(addOn);
+      }
+      setSelectedSize({
+        style: style,
+        price: prc,
+      });
+    }
   };
 
   return (
@@ -200,101 +298,56 @@ const CityMap = () => {
           />
           <hr className="mb-3" />
           <label className="mb-3">2. Styles</label> <br />
-          <div className="" aria-label="Basic example">
-            <button
-              type="button"
-              className="btn btn-secondary m-2"
-              data="mapbox://styles/mapbox/streets-v12"
-              onClick={() => {
-                showMap("mapbox://styles/mapbox/streets-v12");
-              }}
-            >
-              Streets
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary m-2"
-              data="mapbox://styles/mapbox/outdoors-v12"
-              onClick={() => {
-                showMap("mapbox://styles/mapbox/outdoors-v12");
-              }}
-            >
-              Outdoors
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary m-2"
-              data="mapbox://styles/mapbox/light-v11"
-              onClick={() => {
-                showMap("mapbox://styles/mapbox/light-v11");
-              }}
-            >
-              Light
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary m-2"
-              data="mapbox://styles/mapbox/dark-v11"
-              onClick={() => {
-                showMap("mapbox://styles/mapbox/dark-v11");
-              }}
-            >
-              Dark
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary m-2"
-              data="mapbox://styles/mapbox/satellite-v9"
-              onClick={() => {
-                showMap("mapbox://styles/mapbox/satellite-v9");
-              }}
-            >
-              Satellite
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary m-2"
-              data="mapbox://styles/mapbox/satellite-streets-v12"
-              onClick={() => {
-                showMap("mapbox://styles/mapbox/satellite-streets-v12");
-              }}
-            >
-              Satellite Streets
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary m-2"
-              data="mapbox://styles/mapbox/navigation-day-v1"
-              onClick={() => {
-                showMap("mapbox://styles/mapbox/navigation-day-v1");
-              }}
-            >
-              Navigation Day
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary m-2"
-              data="mapbox://styles/mapbox/navigation-night-v1"
-              onClick={() => {
-                showMap("mapbox://styles/mapbox/navigation-night-v1");
-              }}
-            >
-              Navigation Night
-            </button>
+          <div className="styles" aria-label="Basic example">
+            {styleFields.map((value, index) => {
+              if (value.status)
+                return (
+                  <button
+                    key={index}
+                    type="button"
+                    className="btn btn-outline-secondary m-2"
+                    data={value.style}
+                    price={value.price}
+                    onClick={(event) => {
+                      showMap(value.style, event);
+                      updatePrice(value.style, value.price, "style");
+                    }}
+                  >
+                    {value.title}
+                  </button>
+                );
+
+              return <span key={index}></span>;
+            })}
           </div>
           <hr className="mb-3 mt-5" />
           <label className="mb-3">3. Sizes</label> <br />
-          <button
-            type="button"
-            className="btn btn-secondary m-2"
-            zoom={zoom}
-            width="400px"
-            sze="12 X 18 inches"
-            onClick={handleSize.bind(this)}
-          >
-            12 X 18 inches
-          </button>
-          <button
+          <div className="sizes">
+            {sizeFields.map((value, index) => {
+              return (
+                <button
+                  key={index}
+                  type="button"
+                  className="btn btn-outline-secondary m-2"
+                  price={value.price}
+                  zoom={zoom}
+                  width="400px"
+                  sze={value.height + " X " + value.width + " " + value.meas}
+                  onClick={(event) => {
+                    handleSize(event);
+                    updatePrice(
+                      value.height + " X " + value.width + " " + value.meas,
+                      value.price,
+                      "size"
+                    );
+                  }}
+                >
+                  {value.height + " X " + value.width + " " + value.meas}
+                </button>
+              );
+            })}
+          </div>
+          {/* <button
             type="button"
             className="btn btn-secondary m-2"
             zoom="8"
@@ -323,7 +376,7 @@ const CityMap = () => {
             onClick={handleSize.bind(this)}
           >
             50 X 70 cm
-          </button>
+          </button> */}
         </div>
         <div className="map">
           <div className="map-inner shadow">
@@ -333,10 +386,14 @@ const CityMap = () => {
           </div>
         </div>
         <div className="text-center price-info">
-          <h2>Total: $55</h2>
+          <h2>Total: ${total}</h2>
           <p>Ships 1-3 business days</p>
           <p>Free shipping included</p>
-          <button type="button" className="btn btn-danger" onClick={handleCart.bind(this)}>
+          <button
+            type="button"
+            className="btn btn-danger"
+            onClick={handleCart.bind(this)}
+          >
             Add to cart
           </button>
           <hr />

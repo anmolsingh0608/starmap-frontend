@@ -4,53 +4,91 @@ import Layout from "../../component/admin/layout";
 import axiosUrl from "../../component/axiosUrl";
 import Loader from "../../component/loading";
 import toast, { Toaster } from "react-hot-toast";
+import Switch from "react-switch";
 
-const StarmapAdmin = () => {
+const CitymapAdmin = () => {
   const token = localStorage.getItem("token");
   const [styleFields, setStyleFields] = useState([
-    { bgColor: "#000000", color: "#ffffff", price: "" },
+    {
+      status: false,
+      style: "mapbox://styles/mapbox/streets-v12",
+      price: "",
+      title: "Street Style",
+    },
+    {
+      status: false,
+      style: "mapbox://styles/mapbox/outdoors-v12",
+      price: "",
+      title: "Outdoor Style",
+    },
+    {
+      status: false,
+      style: "mapbox://styles/mapbox/light-v11",
+      price: "",
+      title: "Light Style",
+    },
+    {
+      status: false,
+      style: "mapbox://styles/mapbox/dark-v11",
+      price: "",
+      title: "Dark Style",
+    },
+    {
+      status: false,
+      style: "mapbox://styles/mapbox/satellite-v9",
+      price: "",
+      title: "Satellite Style",
+    },
+    {
+      status: false,
+      style: "mapbox://styles/mapbox/satellite-streets-v12",
+      price: "",
+      title: "Satellite Street Style",
+    },
+    {
+      status: false,
+      style: "mapbox://styles/mapbox/navigation-day-v1",
+      price: "",
+      title: "Navigation Day Style",
+    },
+    {
+      status: false,
+      style: "mapbox://styles/mapbox/navigation-night-v1",
+      price: "",
+      title: "Navigation Night Style",
+    },
   ]);
   const [sizeFields, setSizeFields] = useState([
     { height: "", width: "", meas: "Inches", price: "" },
   ]);
-  const [price, setPrice] = useState("");
+  const [price, setPrice] = useState(55);
   const [error, setError] = useState({});
   const nav = useNavigate();
 
   useEffect(() => {
     const fetch = async () => {
-      let response = await axiosUrl.get("/api/map?q=starmap");
-      if (response.data.price) setPrice(response.data.price);
-
-      if (response.data.config) {
-        const { sizes, styles } = response.data.config;
-        setStyleFields(styles);
-        setSizeFields(sizes);
+      let response = await axiosUrl.get("/api/map?q=citymap");
+      if (response.data !== null) {
+        if (response.data.price) setPrice(response.data.price);
+        if (response.data.config) {
+          const { sizes, styles } = response.data.config;
+          setStyleFields(styles);
+          setSizeFields(sizes);
+        }
       }
     };
     fetch();
   }, []);
-
-  const handleChange = (event, index) => {
-    let data = [...styleFields];
-    data[index][event.target.name] = event.target.value;
-    setStyleFields(data);
-  };
-
-  const handleAdd = (event) => {
-    const newField = { bgColor: "#000000", color: "#ffffff", price: "" };
-    setStyleFields([...styleFields, newField]);
-  };
 
   const handleSizeAdd = (event) => {
     const newField = { height: "", width: "", meas: "Inches", price: "" };
     setSizeFields([...sizeFields, newField]);
   };
 
-  const removeFields = (index) => {
-    let data = [...styleFields];
-    data.splice(index, 1);
-    setStyleFields(data);
+  const handleStylePrice = (event, index) => {
+    let styles = [...styleFields];
+    styles[index].price = event.target.value;
+    setStyleFields(styles);
   };
 
   const removeSizeFields = (index) => {
@@ -96,23 +134,33 @@ const StarmapAdmin = () => {
         sizes: sizeFields,
       };
       const data = {
-        name: "starmap",
+        name: "citymap",
         price: price,
         config: config,
       };
 
       axiosUrl.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      let response = await axiosUrl.post("/api/map", data).catch((err) => {
-        if (err.response.data.name === "TokenExpiredError") {
-          alert("Session expired. Please login again.");
-          localStorage.removeItem("token");
-          localStorage.removeItem("userInfo");
-          nav("/admin/login");
-        }
-      });
-      console.log(response);
-      toast.success("Saved!");
+      await axiosUrl
+        .post("/api/map", data)
+        .then((value) => {
+          console.log(value);
+          toast.success("Saved!");
+        })
+        .catch((err) => {
+          if (err.response.data.name === "TokenExpiredError") {
+            alert("Session expired. Please login again.");
+            localStorage.removeItem("token");
+            localStorage.removeItem("userInfo");
+            nav("/admin/login");
+          }
+        });
     }
+  };
+
+  const handleSwitch = (index, status) => {
+    let styles = [...styleFields];
+    styles[index].status = status;
+    setStyleFields(styles);
   };
 
   return (
@@ -191,7 +239,7 @@ const StarmapAdmin = () => {
               </span>
             </small>
           </div>
-          <div className="form-floating mt-2">
+          <div className="form-floating mt-3">
             <input
               type="number"
               name="price"
@@ -211,73 +259,27 @@ const StarmapAdmin = () => {
           role="tabpanel"
           aria-labelledby="profile-tab"
         >
-          <div className="mt-3 ms-2">
-            <small>
-              Leave price field empty if you don't want to add extra price for
-              that style <br />
-              All fields are required except price
-            </small>
-          </div>
-          <button
-            className="btn btn-secondary mt-2 ms-2"
-            onClick={handleAdd.bind(this)}
-            type="button"
-          >
-            Add more
-          </button>
-          <div className="container">
+          <div className="container mt-5">
             {styleFields.map((value, index) => {
               return (
-                <div key={index} className="row mt-3">
-                  <div className="col-2">
-                    <label htmlFor="exampleColorInput" className="form-label">
-                      Background
-                    </label>
-                    <input
-                      type="color"
-                      onChange={(event) => handleChange(event, index)}
-                      className="form-control form-control-color"
-                      value={value.bgColor}
-                      title="Choose your color"
-                      name="bgColor"
+                <div key={index} className="row mb-4">
+                  <div className="col-3">{value.title}</div>
+                  <div className="col-2 text-center">
+                    <Switch
+                      onChange={handleSwitch.bind(this, index)}
+                      checked={value.status}
                     />
                   </div>
-                  <div className="col-2">
-                    <label htmlFor="exampleColorInput" className="form-label">
-                      Text color
-                    </label>
-                    <input
-                      type="color"
-                      onChange={(event) => handleChange(event, index)}
-                      className="form-control form-control-color"
-                      name="color"
-                      value={value.color}
-                      title="Choose your color"
-                    />
-                  </div>
+
                   <div className="col-7">
-                    <label htmlFor="exampleColorInput" className="form-label">
-                      Price
-                    </label>
                     <input
                       type="number"
-                      min="0"
-                      onChange={(event) => handleChange(event, index)}
                       className="form-control"
-                      name="price"
+                      placeholder="Price ($)"
+                      min="0"
                       value={value.price}
-                      placeholder="$"
+                      onChange={(event) => handleStylePrice(event, index)}
                     />
-                  </div>
-                  <div className="col-1 align-self-sm-end">
-                    <button
-                      type="button"
-                      className="btn-close mb-2"
-                      aria-label="Close"
-                      onClick={() => {
-                        removeFields(index);
-                      }}
-                    ></button>
                   </div>
                 </div>
               );
@@ -353,9 +355,9 @@ const StarmapAdmin = () => {
                   <div className="col-2">
                     <input
                       type="number"
-                      min="0"
                       className="form-control"
                       placeholder="$"
+                      min="0"
                       value={value.price}
                       name="price"
                       onChange={(event) => {
@@ -382,4 +384,4 @@ const StarmapAdmin = () => {
   );
 };
 
-export default StarmapAdmin;
+export default CitymapAdmin;

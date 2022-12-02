@@ -7,8 +7,10 @@ import { ReactComponent as Mdl } from "../svg/mdl.svg";
 import { ReactComponent as Line } from "../svg/line.svg";
 import { ReactComponent as Font } from "../svg/fonts.svg";
 import Cartpop from "../component/cartpop.js";
-import Loading from "react-fullscreen-loading";
 import html2canvas from "html2canvas";
+import axiosUrl from "../component/axiosUrl";
+import Loader from "../component/loading";
+import Loading from "react-fullscreen-loading";
 const Celestial = celestial.Celestial();
 
 const Starmap = () => {
@@ -18,6 +20,7 @@ const Starmap = () => {
   const [mv, setMv] = useState(true);
   const [globe, setGlobe] = useState(false);
   const [bg, setBg] = useState("#000");
+  const [loading, setLoading] = useState(false);
   const [color, setColor] = useState("#fff");
   const [search, setSearch] = useState("");
   const [lng, setLng] = useState(2.3483915);
@@ -27,12 +30,63 @@ const Starmap = () => {
   const [msg, setMsg] = useState("Star-Map");
   const [region, setRegion] = useState("Paris");
   const [size, setSize] = useState("12 X 18 inches");
-  const [loading, setLoading] = useState(true);
+  const [styleFields, setStyleFields] = useState([]);
+  const [sizeFields, setSizeFields] = useState([]);
+  const [price, setPrice] = useState(55);
+  const [total, setTotal] = useState();
+  const [selectedStyle, setSelectedStyle] = useState({
+    style: "",
+    price: "",
+  });
+  const [selectedSize, setSelectedSize] = useState({
+    size: "",
+    price: "",
+  });
   let rows = "";
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-    setLoading(false);
+    const fetch = async () => {
+      let response = await axiosUrl.get("/api/map?q=starmap");
+      if (response.data !== null) {
+        if (response.data.price) {
+          setPrice(response.data.price);
+          setTotal(response.data.price);
+        }
+
+        if (response.data.config) {
+          const { sizes, styles } = response.data.config;
+          console.log(sizes, styles);
+          let ttl = 0;
+          if (Object.keys(styles).length > 0) {
+            setSelectedStyle({
+              style: styles[0].style,
+              price: styles[0].price,
+            });
+            if (styles[0].price) {
+              ttl = response.data.price + +styles[0].price;
+              setTotal(ttl);
+            }
+            initialColor(styles[0].bgColor, styles[0].color);
+          }
+          if (Object.keys(sizes).length > 0) {
+            const meas =
+              sizes[0].height + " X " + sizes[0].width + " " + sizes[0].meas;
+            setSelectedSize({
+              size: meas,
+              price: sizes[0].price,
+            });
+            if (sizes[0].price) {
+              ttl = ttl + +sizes[0].price;
+              setTotal(ttl);
+            }
+          }
+          setStyleFields(styles);
+          setSizeFields(sizes);
+        }
+      }
+    };
+    fetch();
   }, []);
 
   useEffect(() => {
@@ -224,7 +278,25 @@ const Starmap = () => {
   const handleColor = (event) => {
     const bgColor = event.target.attributes.data.value;
     const color = event.target.attributes.color.value;
-    bgColor === "#FFFFFF" ? setBg("#000") : setBg(bgColor);
+    bgColor === "#FFFFFF" || bgColor === "#ffffff" || bgColor === "#fff"
+      ? setBg("#000")
+      : setBg(bgColor);
+
+    const element = document.getElementsByClassName("map-pre")[0];
+    element.style.backgroundColor = bgColor;
+    element.style.color = color;
+    const elements = document.getElementsByClassName("hr-co");
+    for (const ele of elements) {
+      ele.style.color = color;
+    }
+  };
+
+  const initialColor = (bg, clr) => {
+    const bgColor = bg;
+    const color = clr;
+    bgColor === "#FFFFFF" || bgColor === "#ffffff" || bgColor === "#fff"
+      ? setBg("#000")
+      : setBg(bgColor);
 
     const element = document.getElementsByClassName("map-pre")[0];
     element.style.backgroundColor = bgColor;
@@ -280,7 +352,7 @@ const Starmap = () => {
       place: region,
       lat: lat,
       lng: lng,
-      price: "55",
+      price: total,
       size: size,
       style: {
         globe: globe,
@@ -298,6 +370,39 @@ const Starmap = () => {
     document.getElementsByClassName("cart-pop")[0].style.display = "block";
     setLoading(false);
     // }, 1000);
+  };
+
+  const updatePrice = (style, prc, type) => {
+    let ttl = total;
+    if (type === "style") {
+      ttl = ttl - Number(selectedStyle.price);
+      if (prc) {
+        const addOn = ttl + +prc;
+        setTotal(addOn);
+      } else {
+        const add = 0;
+        const addOn = ttl + add;
+        setTotal(addOn);
+      }
+      setSelectedStyle({
+        style: style,
+        price: prc,
+      });
+    } else {
+      ttl = ttl - Number(selectedSize.price);
+      if (prc) {
+        const addOn = ttl + +prc;
+        setTotal(addOn);
+      } else {
+        const add = 0;
+        const addOn = ttl + add;
+        setTotal(addOn);
+      }
+      setSelectedSize({
+        style: style,
+        price: prc,
+      });
+    }
   };
 
   return (
@@ -345,67 +450,50 @@ const Starmap = () => {
           />
           <hr className="mb-3" />
           <label className="mb-3">2. Styles</label> <br />
-          <div className="" aria-label="Basic example">
-            <button
-              type="button"
-              className="btn bg-white m-2 button-co"
-              data="#FFFFFF"
-              color="#000000"
-              onClick={handleColor.bind(this)}
-            ></button>
-            <button
-              type="button"
-              className="btn bg-primary m-2 button-co"
-              data="#0D6EFD"
-              color="#FFFFFF"
-              onClick={handleColor.bind(this)}
-            ></button>
-            <button
-              type="button"
-              className="btn bg-dark m-2 button-co"
-              data="#212529"
-              color="#FFFFFF"
-              onClick={handleColor.bind(this)}
-            ></button>
-            <button
-              type="button"
-              className="btn bg-warning m-2 button-co"
-              data="#FFC107"
-              color="#FFFFFF"
-              onClick={handleColor.bind(this)}
-            ></button>
-            <button
-              type="button"
-              className="btn bg-success m-2 button-co"
-              data="#198754"
-              color="#FFFFFF"
-              onClick={handleColor.bind(this)}
-            ></button>
-            <button
-              type="button"
-              className="btn bg-info m-2 button-co"
-              data="#0DCAF0"
-              color="#FFFFFF"
-              onClick={handleColor.bind(this)}
-            ></button>
-            <button
-              type="button"
-              className="btn bg-secondary m-2 button-co"
-              data="#6C757D"
-              color="#FFFFFF"
-              onClick={handleColor.bind(this)}
-            ></button>
-            <button
-              type="button"
-              className="btn bg-danger m-2 button-co"
-              data="#DC3545"
-              color="#FFFFFF"
-              onClick={handleColor.bind(this)}
-            ></button>
+          <div className="styles" aria-label="Basic example">
+            {styleFields.map((value, index) => {
+              return (
+                <button
+                  key={index}
+                  type="button"
+                  style={{ backgroundColor: value.bgColor }}
+                  className="btn m-2 button-co"
+                  data={value.bgColor}
+                  color={value.color}
+                  onClick={(event) => {
+                    handleColor(event);
+                    updatePrice(value.bgColor, value.price, "style");
+                  }}
+                ></button>
+              );
+            })}
           </div>
           <hr className="mb-3 mt-5" />
           <label className="mb-3">3. Sizes</label> <br />
-          <button
+          <div className="sizes">
+            {sizeFields.map((value, index) => {
+              return (
+                <button
+                  key={index}
+                  type="button"
+                  className="btn btn-outline-secondary m-2"
+                  width="410px"
+                  sze={value.height + " X " + value.width + " " + value.meas}
+                  onClick={(event) => {
+                    handleSize(event);
+                    updatePrice(
+                      value.height + " X " + value.width + " " + value.meas,
+                      value.price,
+                      "size"
+                    );
+                  }}
+                >
+                  {value.height + " X " + value.width + " " + value.meas}
+                </button>
+              );
+            })}
+          </div>
+          {/* <button
             type="button"
             className="btn btn-secondary m-2"
             width="410px"
@@ -441,7 +529,7 @@ const Starmap = () => {
             sze="50 X 70 cm"
           >
             50 X 70 cm
-          </button>
+          </button> */}
           <hr className="mb-3" />
           <label className="mb-3">4. Styles</label> <br />
           <span
@@ -497,7 +585,7 @@ const Starmap = () => {
           </div>
         </div>
         <div className="text-center price-info">
-          <h2>Total: $55</h2>
+          <h2>Total: ${total}</h2>
           <p>Ships 1-3 business days</p>
           <p>Free shipping included</p>
           <button
@@ -523,6 +611,7 @@ const Starmap = () => {
             Acid Free / Archival Quality
           </p>
           <Cartpop />
+          <Loader time={1000} />
           <Loading
             loading={loading}
             background="#ffffffde"

@@ -10,6 +10,7 @@ import HomePage from "../pages/homepage";
 import AutoLogin from "./components/autoLogin";
 import StarmapAdmin from "../pages/admin/starmap";
 import CoordinatesAdmin from "../pages/admin/coordinates";
+import CitymapAdmin from "../pages/admin/citymap";
 
 const RouteList = () => {
   return (
@@ -30,6 +31,7 @@ const RouteList = () => {
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/starmap" element={<StarmapAdmin />} />
             <Route path="/admin/coordinates" element={<CoordinatesAdmin />} />
+            <Route path="/admin/citymap" element={<CitymapAdmin />} />
           </Route>
         </Routes>
       </BrowserRouter>

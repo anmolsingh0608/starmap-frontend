@@ -22,6 +22,12 @@ const Sidebar = () => {
             </Link>
           </li>
           <li className="text-decoration-none">
+            <Link to="/admin/citymap">
+              <i className="ionicons ion-gear-b"></i>
+              <span className="text-decoration-none">Citymap</span>
+            </Link>
+          </li>
+          <li className="text-decoration-none">
             <Link to="/admin/starmap">
               <i className="ionicons ion-gear-b"></i>
               <span className="text-decoration-none">Starmap</span>
