@@ -11,6 +11,12 @@ import AutoLogin from "./components/autoLogin";
 import StarmapAdmin from "../pages/admin/starmap";
 import CoordinatesAdmin from "../pages/admin/coordinates";
 import CitymapAdmin from "../pages/admin/citymap";
+import Checkout from "../pages/checkout";
+import Register from "../pages/register";
+import Loginuser from "../pages/login";
+import ProtectedUser from "./components/userProtected";
+import Orders from "../pages/admin/orders/orders";
+import Order from "../pages/admin/orders/order";
 
 const RouteList = () => {
   return (
@@ -23,6 +29,12 @@ const RouteList = () => {
           <Route path="coordinates" element={<Coordinates />} />
           <Route path="starmap" element={<Starmap />} />
           <Route path="cart" element={<Cart />} />
+          <Route path="" element={<ProtectedUser />}>
+            <Route path="checkout" element={<Checkout />} />
+          </Route>
+
+          <Route path="register" element={<Register />} />
+          <Route path="login" element={<Loginuser />} />
           <Route path="" element={<AutoLogin />}>
             <Route path="/admin/login" element={<Login />} />
           </Route>
@@ -32,6 +44,8 @@ const RouteList = () => {
             <Route path="/admin/starmap" element={<StarmapAdmin />} />
             <Route path="/admin/coordinates" element={<CoordinatesAdmin />} />
             <Route path="/admin/citymap" element={<CitymapAdmin />} />
+            <Route path="/admin/orders" element={<Orders />} />
+            <Route path="/admin/orders/:id" element={<Order />} />
           </Route>
         </Routes>
       </BrowserRouter>

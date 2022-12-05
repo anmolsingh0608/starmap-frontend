@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import Header from "../component/header";
 import Layout from "../layout/layout";
+import Loader from "../component/loading";
 
 const HomePage = () => {
   return (
     <Layout>
+      <Loader time={1000} />
       <Header />
       <section className="py-5">
         <div className="container px-4 px-lg-5 mt-5">
@@ -50,7 +52,10 @@ const HomePage = () => {
                 </div>
                 <div className="card-footer p-4 pt-0 border-top-0 bg-transparent">
                   <div className="text-center">
-                    <Link className="btn btn-outline-dark mt-auto" to="/starmap">
+                    <Link
+                      className="btn btn-outline-dark mt-auto"
+                      to="/starmap"
+                    >
                       Create Map
                     </Link>
                   </div>
@@ -73,7 +78,10 @@ const HomePage = () => {
                 </div>
                 <div className="card-footer p-4 pt-0 border-top-0 bg-transparent">
                   <div className="text-center">
-                    <Link className="btn btn-outline-dark mt-auto" to="/coordinates" >
+                    <Link
+                      className="btn btn-outline-dark mt-auto"
+                      to="/coordinates"
+                    >
                       Create Map
                     </Link>
                   </div>

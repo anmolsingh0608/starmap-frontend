@@ -1,21 +1,36 @@
 import { useEffect, useState } from "react";
 import Loading from "react-fullscreen-loading";
+import { Link } from "react-router-dom";
 import "../css/cart.css";
 import Layout from "../layout/layout";
+import Loginuser from "./login";
 
 const Cart = () => {
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState({});
+  const [subtotal, setSubtotal] = useState(0);
+  const [loggedIn, setLoggedIn] = useState(false);
   let rows = "";
   useEffect(() => {
-    const cart = JSON.parse(localStorage.getItem("cart"));
-    if (cart !== null) setCart(cart);
+    const fetch = async () => {
+      const cart = JSON.parse(localStorage.getItem("cart"));
+      if (cart !== null) {
+        setCart(cart);
+        let total = 0;
+        await cart.forEach((element) => {
+          total = total + +element.price;
+        });
+        setSubtotal(total);
+      }
+    };
+    fetch();
     setLoading(false);
   }, []);
 
-  // useEffect(() => {
-  //   rows = "";
-  // })
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("token") ? true : false;
+    setLoggedIn(isLoggedIn);
+  }, []);
 
   const handleDel = (key) => {
     setLoading(true);
@@ -27,8 +42,13 @@ const Cart = () => {
       setLoading(false);
     }, 1000);
 
-    localStorage.setItem('cart', JSON.stringify(shpCart));
+    localStorage.setItem("cart", JSON.stringify(shpCart));
   };
+
+  const handleLogin = (status) => {
+    console.log(status)
+    setLoggedIn(status);
+  }
 
   if (Object.keys(cart).length > 0) {
     rows = cart.map((value, index) => {
@@ -58,6 +78,9 @@ const Cart = () => {
                   </div>
                 </div>
                 <div className="col-4">
+                  <h6 className="mob-text">${value.price}</h6>
+                </div>
+                <div className="col-4">
                   <div className="row d-flex justify-content-end px-3">
                     <p
                       className="mb-0"
@@ -71,9 +94,6 @@ const Cart = () => {
                     </p>
                   </div>
                 </div>
-                <div className="col-4">
-                  <h6 className="mob-text">${value.price}</h6>
-                </div>
               </div>
             </div>
           </div>
@@ -84,9 +104,37 @@ const Cart = () => {
 
   return (
     <Layout>
+      <Loginuser handleLogin={handleLogin} />
       <div className="container px-4 py-5 mx-auto">
         {Object.keys(cart).length > 0 ? (
-          <div>{rows}</div>
+          <>
+            <div>{rows}</div>
+            <div className="float-end me-5">
+              <h4 className="mb-3">Subtotal: ${subtotal}</h4>
+              <div>
+                {loggedIn ? (
+                  <Link to="/checkout">
+                    <button
+                      style={{ width: "100%" }}
+                      type="button"
+                      className="btn btn-primary"
+                    >
+                      Checkout
+                    </button>
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn btn-primary w-100"
+                    data-bs-toggle="modal"
+                    data-bs-target="#loginModal"
+                  >
+                    Checkout
+                  </button>
+                )}
+              </div>
+            </div>
+          </>
         ) : (
           <div className="text-center">
             <img src="/cart1.png" alt="" style={{ width: 450 + "px" }} />

@@ -39,6 +39,12 @@ const Sidebar = () => {
               <span className="text-decoration-none">Coordinates</span>
             </Link>
           </li>
+          <li className="text-decoration-none">
+            <Link to="/admin/orders">
+              <i className="ionicons ion-gear-b"></i>
+              <span className="text-decoration-none">Orders</span>
+            </Link>
+          </li>
           <li>
             {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
             <a href="#" onClick={handleLogout.bind(this)}>
