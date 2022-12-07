@@ -3,10 +3,13 @@ import { Link } from "react-router-dom";
 import "../css/login.css";
 import axiosUrl from "../component/axiosUrl";
 import toast, { Toaster } from "react-hot-toast";
+import { ActionCreators } from "../actions/profile";
+import { useDispatch } from "react-redux";
 
 const Loginuser = ({ handleLogin }) => {
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
+  const dispatch = useDispatch();
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -43,6 +46,7 @@ const Loginuser = ({ handleLogin }) => {
           localStorage.setItem("token", response.data.data.token);
           const { name, role, email } = response.data.data;
           const user = { name: name, role: role, email: email };
+          dispatch(ActionCreators.login(user));
           localStorage.setItem("userInfo", JSON.stringify(user));
           handleLogin(true);
           toast.success("You are logged in!");
@@ -124,7 +128,7 @@ const Loginuser = ({ handleLogin }) => {
                 </form>
               </div>
             </div>
-            <div className="login modal-footer d-flex justify-content-center">
+            {/* <div className="login modal-footer d-flex justify-content-center">
               <div className="login signup-section">
                 Not a member yet?{" "}
                 <Link to="/register" className="login text-info">
@@ -133,7 +137,7 @@ const Loginuser = ({ handleLogin }) => {
                 </Link>
                 .
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

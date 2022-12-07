@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { useSelector } from "react-redux";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import axiosUrl from "./axiosUrl";
 
@@ -18,13 +19,13 @@ const ProtectedRoutes = () => {
           localStorage.removeItem("token");
           localStorage.removeItem("userInfo");
           nav("/admin/login");
-        }
-        else {
-          alert("Invalid request.");
-          localStorage.removeItem("token");
-          localStorage.removeItem("userInfo");
-          nav("/admin/login");
-        }
+        } 
+        // else {
+        //   alert("Invalid request.");
+        //   localStorage.removeItem("token");
+        //   localStorage.removeItem("userInfo");
+        //   nav("/admin/login");
+        // }
       });
     };
     fetch();
@@ -34,14 +35,19 @@ const ProtectedRoutes = () => {
   const auth = localStorage.getItem("token"); // determine if authorized, from context or however you're doing it
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
-  let role = '';
-  if(userInfo) {
+  let role = "";
+  if (userInfo) {
     role = JSON.parse(localStorage.getItem("userInfo")).role;
   }
-  
+  const user = useSelector((state) => state.user);
+  console.log(user, "user");
   // If authorized, return an outlet that will render child elements
   // If not, return element that will navigate to login page
-  return auth && role === "admin" ? <Outlet /> : <Navigate to="/admin/login" />;
+  return auth && user.profile.role === "admin" ? (
+    <Outlet />
+  ) : (
+    <Navigate to="/admin/login" />
+  );
 };
 
 export default ProtectedRoutes;

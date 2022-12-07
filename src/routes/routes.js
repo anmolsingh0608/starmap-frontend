@@ -17,6 +17,7 @@ import Loginuser from "../pages/login";
 import ProtectedUser from "./components/userProtected";
 import Orders from "../pages/admin/orders/orders";
 import Order from "../pages/admin/orders/order";
+import ProtectedRegister from "./components/protectedRegister";
 
 const RouteList = () => {
   return (
@@ -33,7 +34,9 @@ const RouteList = () => {
             <Route path="checkout" element={<Checkout />} />
           </Route>
 
-          <Route path="register" element={<Register />} />
+          <Route path="" element={<ProtectedRegister />}>
+            <Route path="register" element={<Register />} />
+          </Route>
           <Route path="login" element={<Loginuser />} />
           <Route path="" element={<AutoLogin />}>
             <Route path="/admin/login" element={<Login />} />

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Loading from "react-fullscreen-loading";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import "../css/cart.css";
 import Layout from "../layout/layout";
@@ -10,6 +11,7 @@ const Cart = () => {
   const [cart, setCart] = useState({});
   const [subtotal, setSubtotal] = useState(0);
   const [loggedIn, setLoggedIn] = useState(false);
+  const user = useSelector((state) => state.user);
   let rows = "";
   useEffect(() => {
     const fetch = async () => {
@@ -112,7 +114,7 @@ const Cart = () => {
             <div className="float-end me-5">
               <h4 className="mb-3">Subtotal: ${subtotal}</h4>
               <div>
-                {loggedIn ? (
+                {user.profile.email ? (
                   <Link to="/checkout">
                     <button
                       style={{ width: "100%" }}

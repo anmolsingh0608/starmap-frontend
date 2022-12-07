@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const Footer = () => {
   return (
     <div className="container">
@@ -19,19 +21,19 @@ const Footer = () => {
           <h5>POSTER MAKERS</h5>
           <ul className="nav flex-column">
             <li className="nav-item mb-2">
-              <a href="!#" className="nav-link p-0 text-muted">
-                Citymap Posters
-              </a>
+              <Link className="dropdown-item" to="/citymap">
+                City maps
+              </Link>
             </li>
             <li className="nav-item mb-2">
-              <a href="!#" className="nav-link p-0 text-muted">
-                Starmap Posters
-              </a>
+              <Link className="dropdown-item" to="/starmap">
+                Star maps
+              </Link>
             </li>
             <li className="nav-item mb-2">
-              <a href="!#" className="nav-link p-0 text-muted">
-                Coordinates Posters
-              </a>
+              <Link className="dropdown-item" to="/coordinates">
+                Coordinates
+              </Link>
             </li>
           </ul>
         </div>

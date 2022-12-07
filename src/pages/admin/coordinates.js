@@ -104,16 +104,22 @@ const CoordinatesAdmin = () => {
       };
 
       axiosUrl.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      let response = await axiosUrl.post("/api/map", data).catch((err) => {
-        if (err.response.data.name === "TokenExpiredError") {
-          alert("Session expired. Please login again.");
-          localStorage.removeItem("token");
-          localStorage.removeItem("userInfo");
-          nav("/admin/login");
-        }
-      });
-      console.log(response);
-      toast.success("Saved!");
+      let response = await axiosUrl
+        .post("/api/map", data)
+        .then((res) => {
+          console.log(res);
+          toast.success("Saved!");
+        })
+        .catch((err) => {
+          if (err.response.data.name === "TokenExpiredError") {
+            alert("Session expired. Please login again.");
+            localStorage.removeItem("token");
+            localStorage.removeItem("userInfo");
+            nav("/admin/login");
+          } else {
+            alert("Invalid request");
+          }
+        });
     }
   };
 

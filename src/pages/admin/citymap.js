@@ -142,8 +142,8 @@ const CitymapAdmin = () => {
       axiosUrl.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       await axiosUrl
         .post("/api/map", data)
-        .then((value) => {
-          console.log(value);
+        .then((res) => {
+          console.log(res);
           toast.success("Saved!");
         })
         .catch((err) => {
@@ -152,6 +152,8 @@ const CitymapAdmin = () => {
             localStorage.removeItem("token");
             localStorage.removeItem("userInfo");
             nav("/admin/login");
+          } else {
+            alert("Invalid request");
           }
         });
     }

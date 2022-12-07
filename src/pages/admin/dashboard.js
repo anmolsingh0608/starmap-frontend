@@ -1,7 +1,11 @@
+import { useDispatch, useSelector } from "react-redux";
 import Layout from "../../component/admin/layout";
 import Loader from "../../component/loading";
 
 const Dashboard = () => {
+  const user = useSelector((state) => state.user);
+  console.log(user);
+
   return (
     <>
       <Layout>

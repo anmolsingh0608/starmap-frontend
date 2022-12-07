@@ -2,10 +2,13 @@ import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../component/loading";
+import { ActionCreators } from "../../actions/profile";
+import { useDispatch } from "react-redux";
 
 const Login = () => {
   const [form, setForm] = useState({});
   const [errors, setErrors] = useState({});
+  const dispatch = useDispatch();
 
   const nav = useNavigate();
 
@@ -53,6 +56,7 @@ const Login = () => {
       const { name, role, email } = response.data.data;
       const user = { name: name, role: role, email: email };
       console.log(user);
+      dispatch(ActionCreators.login(user));
       localStorage.setItem("userInfo", JSON.stringify(user));
       nav("/admin/dashboard");
     }
